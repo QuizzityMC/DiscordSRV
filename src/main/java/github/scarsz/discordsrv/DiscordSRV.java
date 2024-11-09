@@ -867,7 +867,22 @@ public class DiscordSRV extends JavaPlugin {
         }
         try {
             // see ApiManager for our default intents & cache flags
-            jda = JDABuilder.create(api.getIntents())
+
+	    RestConfig restConfig = new RestConfig();
+	    restConfig.setBaseUrl("https://chat.quizzity.tech/api");
+
+	    public class SpacebarSessionController extends ConcurrentSessionController {
+
+ 		   @NotNull
+ 		   @Override
+   		 public String getGateway() {
+   		     return "wss://chat.quizzity.tech/gateway/?encoding=json&v=9&compress=zlib-stream";
+  		  }
+
+            }
+
+            jda = JDABuilder.createDefault("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEzMDQ2Njc5MTIyMjg5NjE1NTYiLCJpYXQiOjE3MzExMjc0NzN9.bgtrPihvo7gqWNNC1fhS4XTEJjF_ez40USm4TxOLXNY
+")
                     // we disable anything that isn't enabled (everything is enabled by default)
                     .disableCache(Arrays.stream(CacheFlag.values()).filter(cacheFlag -> !api.getCacheFlags().contains(cacheFlag)).collect(Collectors.toList()))
                     .setMemberCachePolicy(MemberCachePolicy.ALL)
@@ -890,6 +905,8 @@ public class DiscordSRV extends JavaPlugin {
                     .addEventListeners(api)
                     .addEventListeners(groupSynchronizationManager)
                     .setContextEnabled(false)
+		    .setRestConfig(restConfig)
+                    .setSessionController(new SpacebarSessionController())
                     .build();
             jda.awaitReady(); // let JDA be assigned as soon as we can, but wait until it's ready
 
